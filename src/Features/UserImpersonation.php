@@ -46,10 +46,11 @@ class UserImpersonation implements Feature
         $ttl = $ttl ?? static::$ttl;
 
         if ($token->created_at->diffInSeconds(Carbon::now()) > $ttl) {
-            abort(403);
+            abort(403, 'Session Expired');
         }
 
         Auth::guard($token->auth_guard)->loginUsingId($token->user_id);
+        abort_unless(Auth::check(), 403, 'User not found');
 
         $token->delete();
 
